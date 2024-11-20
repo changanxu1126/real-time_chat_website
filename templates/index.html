@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>聊天室</title>
+    <style>
+        #messages {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        #messages li {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <ul id="messages"></ul>
+    <form id="form" action="">
+        <input id="input" autocomplete="off" /><button>发送</button>
+    </form>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            var socket = io();
+
+            // Load historical messages from the server
+            socket.on('load_messages', function(msgs) {
+                msgs.forEach(function(msg) {
+                    $('#messages').append($('<li>').text(msg));
+                });
+            });
+
+            // Send new message to the server
+            $('form').submit(function(){
+                var msg = $('#input').val();
+                socket.emit('message', msg);
+                $('#input').val('');
+                return false;
+            });
+
+            // Receive new messages from the server and display them
+            socket.on('message', function(msg){
+                $('#messages').append($('<li>').text(msg));
+            });
+        });
+    </script>
+</body>
+</html>
+
